@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MetaMuse</string>
+    <!-- SearchScreen -->
+    <string name="search_placeholder">Suche...</string>
+    <string name="search_trailing_icon">Text löschen</string>
+    <string name="search_snackbar_error">Keine Internetverbindung</string>
+    <!-- DetailScreen -->
+    <string name="detail_screen_title">Details</string>
+    <string name="detail_back_button">Zurück</string>
+    <string name="details_creation">Entstehungszeit:</string>
+    <string name="details_medium">Medium:</string>
+    <string name="details_dimensions">Maße:</string>
+    <string name="details_url_text">Weitere Informationen auf der Webseite →</string>
+    <!--    ErrorScreen-->
+    <string name="errror_screen_text">Keine Internetverbindung.\nBitte überprüfe deine Verbindung.</string>
+    <string name="error_screen_button">Erneut versuchen</string>
+</resources>
