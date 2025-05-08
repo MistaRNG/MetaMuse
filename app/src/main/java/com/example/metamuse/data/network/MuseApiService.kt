@@ -1,7 +1,7 @@
-package com.example.metamuse.network
+package com.example.metamuse.data.network
 
-import com.example.metamuse.model.MuseumObject
-import com.example.metamuse.model.MuseumResponse
+import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.data.model.MuseumResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

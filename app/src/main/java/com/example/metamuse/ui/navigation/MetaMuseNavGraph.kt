@@ -3,12 +3,10 @@ package com.example.metamuse.ui.navigation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.metamuse.container
-import com.example.metamuse.model.MuseumObject
 import com.example.metamuse.ui.details.DetailScreen
 import com.example.metamuse.ui.details.DetailViewModel
 import com.example.metamuse.ui.details.DetailsDestination

@@ -1,13 +1,12 @@
 package com.example.metamuse.ui.search
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.metamuse.data.MetaMuseRepository
-import com.example.metamuse.model.MuseumObject
+import com.example.metamuse.data.model.MuseumObject
 import kotlinx.coroutines.launch
 
 class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : ViewModel() {

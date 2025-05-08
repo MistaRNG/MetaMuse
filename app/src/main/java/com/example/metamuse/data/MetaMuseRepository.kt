@@ -1,7 +1,7 @@
 package com.example.metamuse.data
 
-import com.example.metamuse.model.MuseumObject
-import com.example.metamuse.network.MuseApiService
+import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.data.network.MuseApiService
 
 interface MetaMuseRepository {
     suspend fun getMuseumIDs(): List<Int>

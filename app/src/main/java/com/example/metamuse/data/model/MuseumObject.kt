@@ -1,4 +1,4 @@
-package com.example.metamuse.model
+package com.example.metamuse.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

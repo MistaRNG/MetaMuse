@@ -4,7 +4,7 @@ import org.junit.Test
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.metamuse.data.MetaMuseRepository
-import com.example.metamuse.model.MuseumObject
+import com.example.metamuse.data.model.MuseumObject
 import com.example.metamuse.ui.search.SearchViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
