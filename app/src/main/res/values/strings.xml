@@ -14,4 +14,5 @@
     <!--    ErrorScreen-->
     <string name="errror_screen_text">No internet connection.\nPlease check your connection.</string>
     <string name="error_screen_button">Try again</string>
+    <string name="error_no_id">Error: No ID found.</string>
 </resources>
