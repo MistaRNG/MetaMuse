@@ -150,7 +150,6 @@ fun SearchScreen(
                 }
             }
 
-            // Infinite scroll listener
             LaunchedEffect(listState, searchViewModel.searchMode) {
                 snapshotFlow { listState.layoutInfo.visibleItemsInfo }
                     .collect { visibleItems ->

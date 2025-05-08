@@ -80,7 +80,6 @@ fun DetailScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Hauptbild
             Surface(
                 shape = RoundedCornerShape(12.dp),
                 tonalElevation = 4.dp,
@@ -96,7 +95,6 @@ fun DetailScreen(
                 )
             }
 
-            // Galerie
             if (museumObject.additionalImages.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
@@ -141,7 +139,6 @@ fun DetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Titel und Künstler
             if (museumObject.title.isNotBlank()) {
                 Text(
                     text = museumObject.title,
@@ -170,7 +167,6 @@ fun DetailScreen(
                 )
             }
 
-            // Metadaten
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -186,7 +182,6 @@ fun DetailScreen(
                 }
             }
 
-            // Link
             if (museumObject.objectURL.isNotBlank()) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
