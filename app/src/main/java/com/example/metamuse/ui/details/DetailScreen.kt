@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.metamuse.R
-import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.domain.model.MuseumObject
 import com.example.metamuse.ui.navigation.NavigationDestination
 
 object DetailsDestination : NavigationDestination {
@@ -89,7 +89,7 @@ fun DetailScreen(
                     .height(300.dp)
             ) {
                 AsyncImage(
-                    model = museumObject.primaryImage.ifBlank { R.drawable.placeholder_img },
+                    model = museumObject.imageUrl.ifBlank { R.drawable.placeholder_img },
                     contentDescription = museumObject.title,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -148,9 +148,9 @@ fun DetailScreen(
                 )
             }
 
-            if (museumObject.artistDisplayName.isNotBlank()) {
+            if (museumObject.artist.isNotBlank()) {
                 Text(
-                    text = museumObject.artistDisplayName,
+                    text = museumObject.artist,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
@@ -158,9 +158,9 @@ fun DetailScreen(
                 )
             }
 
-            if (museumObject.artistDisplayBio.isNotBlank()) {
+            if (museumObject.artistBio.isNotBlank()) {
                 Text(
-                    text = museumObject.artistDisplayBio,
+                    text = museumObject.artistBio,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 24.dp)
@@ -171,8 +171,8 @@ fun DetailScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (museumObject.objectDate.isNotBlank()) {
-                    DetailRow(stringResource(R.string.details_creation), museumObject.objectDate)
+                if (museumObject.date.isNotBlank()) {
+                    DetailRow(stringResource(R.string.details_creation), museumObject.date)
                 }
                 if (museumObject.medium.isNotBlank()) {
                     DetailRow(stringResource(R.string.details_medium), museumObject.medium)
@@ -182,14 +182,14 @@ fun DetailScreen(
                 }
             }
 
-            if (museumObject.objectURL.isNotBlank()) {
+            if (museumObject.url.isNotBlank()) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = stringResource(R.string.details_url_text),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .clickable { uriHandler.openUri(museumObject.objectURL) }
+                        .clickable { uriHandler.openUri(museumObject.url) }
                         .padding(8.dp)
                 )
             }

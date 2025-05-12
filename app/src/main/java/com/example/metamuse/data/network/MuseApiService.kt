@@ -1,6 +1,6 @@
 package com.example.metamuse.data.network
 
-import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.data.model.dto.MuseumObjectDto
 import com.example.metamuse.data.model.MuseumResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -12,7 +12,7 @@ interface MuseApiService {
     suspend fun getMuseumIDs(): MuseumResponse
 
     @GET("objects/{id}")
-    suspend fun getMuseumObject(@retrofit2.http.Path("id") id: Int): MuseumObject
+    suspend fun getMuseumObject(@retrofit2.http.Path("id") id: Int): MuseumObjectDto
 
     @GET("search")
     suspend fun searchMuseumObjects(

@@ -6,7 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.metamuse.data.MetaMuseRepository
-import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.domain.model.MuseumObject
+import com.example.metamuse.ui.navigation.searchViewModel
 import kotlinx.coroutines.launch
 
 class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : ViewModel() {

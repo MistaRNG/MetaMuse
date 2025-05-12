@@ -1,6 +1,7 @@
 package com.example.metamuse.data
 
-import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.domain.model.MuseumObject
+import com.example.metamuse.data.mapper.toDomain
 import com.example.metamuse.data.network.MuseApiService
 
 interface MetaMuseRepository {
@@ -18,7 +19,13 @@ internal class NetworkMetaMuseRepository(
     }
 
     override suspend fun getMuseumObject(id: Int): MuseumObject {
-        return museApiService.getMuseumObject(id)
+        return try {
+            val dto = museApiService.getMuseumObject(id)
+            dto.toDomain()
+        } catch (e: Exception) {
+            println("❌ Failed to fetch DTO: ${e.message}")
+            throw e
+        }
     }
 
     override suspend fun searchMuseumObjectIDs(query: String): List<Int> {

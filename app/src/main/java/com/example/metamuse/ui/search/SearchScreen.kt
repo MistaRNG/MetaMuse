@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.metamuse.R
+import com.example.metamuse.domain.model.MuseumObject
 import com.example.metamuse.ui.common.ErrorScreen
 import com.example.metamuse.ui.details.DetailViewModel
 import com.example.metamuse.ui.navigation.NavigationDestination
@@ -101,13 +102,13 @@ fun SearchScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
-                    items(museumObjects) { obj ->
+                    items(museumObjects) { obj: MuseumObject ->
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     detailViewModel.museumObject = obj
-                                    navigateToDetails(obj.objectID)
+                                    navigateToDetails(obj.id)
                                 },
                             shape = RoundedCornerShape(16.dp),
                             tonalElevation = 2.dp,
@@ -124,7 +125,7 @@ fun SearchScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "ID: ${obj.objectID}",
+                                    text = "ID: ${obj.id}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Start
