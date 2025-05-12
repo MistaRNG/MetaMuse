@@ -1,43 +1,38 @@
 package com.example.metamuse.ui.search
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.metamuse.data.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
-import com.example.metamuse.ui.navigation.searchViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : ViewModel() {
 
-    var museUiState by mutableStateOf<List<MuseumObject>>(emptyList())
-        private set
+    private val _museUiState = MutableStateFlow<List<MuseumObject>>(emptyList())
+    val museUiState: StateFlow<List<MuseumObject>> = _museUiState.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _searchMode = MutableStateFlow(false)
+    val searchMode: StateFlow<Boolean> = _searchMode.asStateFlow()
+
+    private val _showInitialLoadError = MutableStateFlow(false)
+    val showInitialLoadError: StateFlow<Boolean> = _showInitialLoadError.asStateFlow()
+
+    private val _showNetworkErrorSnackbar = MutableStateFlow(false)
+    val showNetworkErrorSnackbar: StateFlow<Boolean> = _showNetworkErrorSnackbar.asStateFlow()
 
     private var allMuseumObjects = listOf<MuseumObject>()
-
-    var searchQuery by mutableStateOf("")
-        private set
-
-    var loadedItemCount by mutableStateOf(0)
-        private set
-
-    val loadBatchSize = 20
+    private var loadedItemCount = 0
+    private val loadBatchSize = 20
     private var allIDs = listOf<Int>()
-
-    var isLoading by mutableStateOf(false)
-        private set
-
-    var searchMode by mutableStateOf(false)
-        private set
-
-    var showInitialLoadError by mutableStateOf(false)
-        private set
-
-    var showNetworkErrorSnackbar by mutableStateOf(false)
-        private set
-
     private var currentJobToken = 0
     private var lastSearchQuery: String? = null
 
@@ -46,28 +41,28 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
     }
 
     private fun notifyNetworkError() {
-        showNetworkErrorSnackbar = true
+        _showNetworkErrorSnackbar.value = true
     }
 
     fun clearNetworkErrorEvent() {
-        showNetworkErrorSnackbar = false
+        _showNetworkErrorSnackbar.value = false
     }
 
     private fun getMuseumIDs() {
         viewModelScope.launch {
             try {
                 allIDs = metaMuseRepository.getMuseumIDs()
-                showInitialLoadError = false
+                _showInitialLoadError.value = false
                 loadMoreMuseumObjects()
             } catch (e: Exception) {
-                showInitialLoadError = true
+                _showInitialLoadError.value = true
             }
         }
     }
 
     fun loadMoreMuseumObjects() {
-        if (isLoading || searchMode) return
-        isLoading = true
+        if (_isLoading.value || _searchMode.value) return
+        _isLoading.value = true
         val tokenAtStart = currentJobToken
 
         viewModelScope.launch {
@@ -87,31 +82,31 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
 
                 loadedItemCount += newObjects.size
                 allMuseumObjects += newObjects
-                museUiState = allMuseumObjects
+                _museUiState.value = allMuseumObjects
 
                 if (networkFailure) notifyNetworkError()
             } finally {
-                if (tokenAtStart == currentJobToken) isLoading = false
+                if (tokenAtStart == currentJobToken) _isLoading.value = false
             }
         }
     }
 
     fun onSearchQueryChange(newQuery: String) {
-        if (newQuery == searchQuery && museUiState.isNotEmpty()) return
+        if (newQuery == _searchQuery.value && _museUiState.value.isNotEmpty()) return
 
-        searchQuery = newQuery
+        _searchQuery.value = newQuery
         lastSearchQuery = newQuery
         currentJobToken++
 
         if (newQuery.isBlank()) {
-            searchMode = false
-            museUiState = allMuseumObjects
+            _searchMode.value = false
+            _museUiState.value = allMuseumObjects
             return
         }
 
-        searchMode = true
+        _searchMode.value = true
         viewModelScope.launch {
-            isLoading = true
+            _isLoading.value = true
             val tokenAtStart = currentJobToken
 
             try {
@@ -127,25 +122,25 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
 
                 if (tokenAtStart != currentJobToken) return@launch
 
-                museUiState = searchObjects
+                _museUiState.value = searchObjects
 
             } catch (e: Exception) {
                 if (tokenAtStart == currentJobToken) {
-                    museUiState = emptyList()
+                    _museUiState.value = emptyList()
                     notifyNetworkError()
                 }
             } finally {
-                if (tokenAtStart == currentJobToken) isLoading = false
+                if (tokenAtStart == currentJobToken) _isLoading.value = false
             }
         }
     }
 
     fun retryLastAction() {
-        showInitialLoadError = false
-        showNetworkErrorSnackbar = false
+        _showInitialLoadError.value = false
+        _showNetworkErrorSnackbar.value = false
 
-        if (searchMode) {
-            onSearchQueryChange(searchQuery)
+        if (_searchMode.value) {
+            onSearchQueryChange(_searchQuery.value)
         } else {
             if (allIDs.isEmpty()) {
                 getMuseumIDs()

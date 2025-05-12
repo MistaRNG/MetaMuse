@@ -90,6 +90,6 @@ data class ElementMeasurementsDto(
 @Serializable
 data class TagDto(
     @SerialName("term") val term: String = "",
-    @SerialName("AAT_URL") val aatUrl: String = "",
+    @SerialName("AAT_URL") val AAT_URL: String?,
     @SerialName("Wikidata_URL") val wikidataUrl: String = ""
 )
