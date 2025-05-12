@@ -18,7 +18,7 @@ import com.example.metamuse.ui.search.SearchViewModel
 
 
 val searchViewModel = SearchViewModel(container.metaMuseRepository)
-val detailViewModel = DetailViewModel(container.metaMuseRepository)
+val detailViewModel = DetailViewModel()
 /**
  * Provides Navigation graph for the application.
  */

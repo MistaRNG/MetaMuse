@@ -4,6 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.example.metamuse.data.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
 
-class DetailViewModel(private val metaMuseRepository: MetaMuseRepository) : ViewModel() {
+class DetailViewModel : ViewModel() {
     var museumObject: MuseumObject? = null
 }
