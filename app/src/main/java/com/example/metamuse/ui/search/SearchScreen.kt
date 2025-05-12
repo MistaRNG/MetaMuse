@@ -64,108 +64,105 @@ fun SearchScreen(
     }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
-
-        if (searchViewModel.showInitialLoadError && museumObjects.isEmpty()) {
-            ErrorScreen(onRetry = { searchViewModel.retryLastAction() })
-            return@Scaffold
-        }
-
         Column(
             modifier = modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            TextField(
-                value = searchViewModel.searchQuery,
-                onValueChange = { searchViewModel.onSearchQueryChange(it) },
-                placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                trailingIcon = {
-                    if (searchViewModel.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchViewModel.onSearchQueryChange("") }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(R.string.search_trailing_icon)
-                            )
+            if (searchViewModel.showInitialLoadError && museumObjects.isEmpty()) {
+                ErrorScreen(onRetry = { searchViewModel.retryLastAction() })
+            } else {
+                TextField(
+                    value = searchViewModel.searchQuery,
+                    onValueChange = { searchViewModel.onSearchQueryChange(it) },
+                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    trailingIcon = {
+                        if (searchViewModel.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchViewModel.onSearchQueryChange("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.search_trailing_icon)
+                                )
+                            }
                         }
-                    }
-                },
-                singleLine = true
-            )
+                    },
+                    singleLine = true
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                items(museumObjects) { obj ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                detailViewModel.museumObject = obj
-                                navigateToDetails(obj.objectID)
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        tonalElevation = 2.dp,
-                        shadowElevation = 4.dp,
-                        color = MaterialTheme.colorScheme.surface
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
-                        ) {
-                            Text(
-                                text = obj.title,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "ID: ${obj.objectID}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Start
-                            )
-                        }
-                    }
-                }
-
-                if (searchViewModel.isLoading) {
-                    item {
-                        Box(
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 32.dp)
+                ) {
+                    items(museumObjects) { obj ->
+                        Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
+                                .clickable {
+                                    detailViewModel.museumObject = obj
+                                    navigateToDetails(obj.objectID)
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            tonalElevation = 2.dp,
+                            shadowElevation = 4.dp,
+                            color = MaterialTheme.colorScheme.surface
                         ) {
-                            CircularProgressIndicator()
+                            Column(
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                            ) {
+                                Text(
+                                    text = obj.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "ID: ${obj.objectID}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Start
+                                )
+                            }
+                        }
+                    }
+
+                    if (searchViewModel.isLoading) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
-            }
 
-            LaunchedEffect(listState, searchViewModel.searchMode) {
-                snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-                    .collect { visibleItems ->
-                        val lastVisibleItem = visibleItems.lastOrNull()
-                        val totalItemsCount = listState.layoutInfo.totalItemsCount
-                        if (
-                            lastVisibleItem != null &&
-                            lastVisibleItem.index >= totalItemsCount - 5 &&
-                            !searchViewModel.isLoading &&
-                            !searchViewModel.searchMode
-                        ) {
-                            searchViewModel.loadMoreMuseumObjects()
+                LaunchedEffect(listState, searchViewModel.searchMode) {
+                    snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+                        .collect { visibleItems ->
+                            val lastVisibleItem = visibleItems.lastOrNull()
+                            val totalItemsCount = listState.layoutInfo.totalItemsCount
+                            if (
+                                lastVisibleItem != null &&
+                                lastVisibleItem.index >= totalItemsCount - 5 &&
+                                !searchViewModel.isLoading &&
+                                !searchViewModel.searchMode
+                            ) {
+                                searchViewModel.loadMoreMuseumObjects()
+                            }
                         }
-                    }
+                }
             }
         }
     }
 }
-
