@@ -9,7 +9,7 @@ interface MetaMuseRepository {
     suspend fun searchMuseumObjectIDs(query: String): List<Int>
 }
 
-class NetworkMetaMuseRepository(
+internal class NetworkMetaMuseRepository(
     private val museApiService: MuseApiService
 ) : MetaMuseRepository {
 
