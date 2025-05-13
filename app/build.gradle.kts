@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")
 }
 
 android {
@@ -70,7 +72,9 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
 
-
+    //Dagger
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-compiler:2.48")
 
 
     androidTestImplementation(libs.androidx.junit)
