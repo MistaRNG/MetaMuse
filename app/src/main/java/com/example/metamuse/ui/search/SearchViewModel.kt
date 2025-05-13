@@ -30,14 +30,12 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
     val showNetworkErrorSnackbar: StateFlow<Boolean> = _showNetworkErrorSnackbar.asStateFlow()
 
     private var allMuseumObjects = listOf<MuseumObject>()
-    private var loadedItemCount = 0
-    private val loadBatchSize = 20
     private var allIDs = listOf<Int>()
+    private var loadedItemCount = 0
     private var currentJobToken = 0
-    private var lastSearchQuery: String? = null
 
     init {
-        getMuseumIDs()
+        loadInitial()
     }
 
     private fun notifyNetworkError() {
@@ -48,14 +46,20 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
         _showNetworkErrorSnackbar.value = false
     }
 
-    private fun getMuseumIDs() {
+    private fun loadInitial() {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
-                allIDs = metaMuseRepository.getMuseumIDs()
+                val (objects, ids) = metaMuseRepository.loadInitialMuseumObjects(batchSize = 20)
+                allIDs = ids
+                allMuseumObjects = objects
+                loadedItemCount = objects.size
+                _museUiState.value = allMuseumObjects
                 _showInitialLoadError.value = false
-                loadMoreMuseumObjects()
             } catch (e: Exception) {
                 _showInitialLoadError.value = true
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -66,27 +70,16 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
         val tokenAtStart = currentJobToken
 
         viewModelScope.launch {
-            var networkFailure = false
             try {
-                val nextBatch = allIDs.drop(loadedItemCount).take(loadBatchSize)
-                val newObjects = nextBatch.mapNotNull { id ->
-                    try {
-                        metaMuseRepository.getMuseumObject(id)
-                    } catch (e: Exception) {
-                        networkFailure = true
-                        null
-                    }
-                }
-
+                val newObjects = metaMuseRepository.loadNextMuseumObjects(allIDs, loadedItemCount, batchSize = 20)
                 if (tokenAtStart != currentJobToken) return@launch
-
                 loadedItemCount += newObjects.size
                 allMuseumObjects += newObjects
                 _museUiState.value = allMuseumObjects
-
-                if (networkFailure) notifyNetworkError()
+            } catch (e: Exception) {
+                notifyNetworkError()
             } finally {
-                if (tokenAtStart == currentJobToken) _isLoading.value = false
+                _isLoading.value = false
             }
         }
     }
@@ -95,7 +88,6 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
         if (newQuery == _searchQuery.value && _museUiState.value.isNotEmpty()) return
 
         _searchQuery.value = newQuery
-        lastSearchQuery = newQuery
         currentJobToken++
 
         if (newQuery.isBlank()) {
@@ -105,25 +97,15 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
         }
 
         _searchMode.value = true
+        _isLoading.value = true
+
+        val tokenAtStart = currentJobToken
         viewModelScope.launch {
-            _isLoading.value = true
-            val tokenAtStart = currentJobToken
-
             try {
-                val searchIDs = metaMuseRepository.searchMuseumObjectIDs(newQuery)
-
-                val searchObjects = searchIDs.take(50).mapNotNull { id ->
-                    try {
-                        metaMuseRepository.getMuseumObject(id)
-                    } catch (e: Exception) {
-                        null
-                    }
+                val searchObjects = metaMuseRepository.searchMuseumObjects(newQuery)
+                if (tokenAtStart == currentJobToken) {
+                    _museUiState.value = searchObjects
                 }
-
-                if (tokenAtStart != currentJobToken) return@launch
-
-                _museUiState.value = searchObjects
-
             } catch (e: Exception) {
                 if (tokenAtStart == currentJobToken) {
                     _museUiState.value = emptyList()
@@ -143,7 +125,7 @@ class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : View
             onSearchQueryChange(_searchQuery.value)
         } else {
             if (allIDs.isEmpty()) {
-                getMuseumIDs()
+                loadInitial()
             } else {
                 loadMoreMuseumObjects()
             }
