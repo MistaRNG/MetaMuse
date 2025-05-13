@@ -5,32 +5,47 @@ import com.example.metamuse.data.mapper.toDomain
 import com.example.metamuse.data.network.MuseApiService
 
 interface MetaMuseRepository {
-    suspend fun getMuseumIDs(): List<Int>
-    suspend fun getMuseumObject(id: Int): MuseumObject
-    suspend fun searchMuseumObjectIDs(query: String): List<Int>
+    suspend fun loadInitialMuseumObjects(batchSize: Int): Pair<List<MuseumObject>, List<Int>>
+    suspend fun loadNextMuseumObjects(
+        allIds: List<Int>,
+        offset: Int,
+        batchSize: Int
+    ): List<MuseumObject>
+
+    suspend fun searchMuseumObjects(query: String, limit: Int = 50): List<MuseumObject>
 }
 
 internal class NetworkMetaMuseRepository(
     private val museApiService: MuseApiService
 ) : MetaMuseRepository {
 
-    override suspend fun getMuseumIDs(): List<Int> {
-        return museApiService.getMuseumIDs().objectIDs ?: emptyList()
+    override suspend fun loadInitialMuseumObjects(batchSize: Int): Pair<List<MuseumObject>, List<Int>> {
+        val allIds = museApiService.getMuseumIDs().objectIDs ?: emptyList()
+        val objects = getMuseumObjectsByIDs(allIds.take(batchSize))
+        return Pair(objects, allIds)
     }
 
-    override suspend fun getMuseumObject(id: Int): MuseumObject {
+    override suspend fun loadNextMuseumObjects(allIds: List<Int>, offset: Int, batchSize: Int): List<MuseumObject> {
+        val nextBatch = allIds.drop(offset).take(batchSize)
+        return getMuseumObjectsByIDs(nextBatch)
+    }
+
+    override suspend fun searchMuseumObjects(query: String, limit: Int): List<MuseumObject> {
         return try {
-            val dto = museApiService.getMuseumObject(id)
-            dto.toDomain()
+            val ids = museApiService.searchMuseumObjects(query).objectIDs ?: emptyList()
+            getMuseumObjectsByIDs(ids.take(limit))
         } catch (e: Exception) {
-            println("❌ Failed to fetch DTO: ${e.message}")
-            throw e
+            emptyList()
         }
     }
 
-    override suspend fun searchMuseumObjectIDs(query: String): List<Int> {
-        return museApiService.searchMuseumObjects(
-            query = query
-        ).objectIDs ?: emptyList()
+    private suspend fun getMuseumObjectsByIDs(ids: List<Int>): List<MuseumObject> {
+        return ids.mapNotNull { id ->
+            try {
+                museApiService.getMuseumObject(id).toDomain()
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 }
