@@ -4,12 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.metamuse.data.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchViewModel(private val metaMuseRepository: MetaMuseRepository) : ViewModel() {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val metaMuseRepository: MetaMuseRepository
+) : ViewModel() {
 
     private val _museUiState = MutableStateFlow<List<MuseumObject>>(emptyList())
     val museUiState: StateFlow<List<MuseumObject>> = _museUiState.asStateFlow()

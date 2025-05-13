@@ -10,10 +10,12 @@ import androidx.compose.ui.Modifier
 import com.example.metamuse.data.DefaultAppContainer
 import com.example.metamuse.ui.MetaMuseApp
 import com.example.metamuse.ui.theme.MetaMuseTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 
 val container = DefaultAppContainer()
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

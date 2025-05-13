@@ -15,10 +15,8 @@ import com.example.metamuse.ui.details.DetailsDestination
 import com.example.metamuse.ui.search.SearchDestination
 import com.example.metamuse.ui.search.SearchScreen
 import com.example.metamuse.ui.search.SearchViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
-
-val searchViewModel = SearchViewModel(container.metaMuseRepository)
-val detailViewModel = DetailViewModel()
 /**
  * Provides Navigation graph for the application.
  */
@@ -33,6 +31,8 @@ fun MetaMuseNavHost(
         modifier = modifier
     ) {
         composable(route = SearchDestination.route) {
+            val searchViewModel: SearchViewModel = hiltViewModel()
+            val detailViewModel: DetailViewModel = hiltViewModel()
             SearchScreen(
                 searchViewModel = searchViewModel,
                 detailViewModel = detailViewModel,
@@ -40,6 +40,7 @@ fun MetaMuseNavHost(
             )
         }
         composable(route = DetailsDestination.fullRoute) { backStackEntry ->
+            val detailViewModel: DetailViewModel = hiltViewModel()
             val id = backStackEntry.arguments?.getString(DetailsDestination.idArg)
             if (id != null) {
                 DetailScreen(
