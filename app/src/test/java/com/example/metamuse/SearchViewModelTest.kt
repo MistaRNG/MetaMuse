@@ -1,7 +1,5 @@
 package com.example.metamuse
 
-import org.junit.Test
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.metamuse.data.MetaMuseRepository
 import com.example.metamuse.data.model.MuseumObject

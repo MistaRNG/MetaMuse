@@ -1,8 +1,8 @@
 package com.example.metamuse.data
 
-import com.example.metamuse.domain.model.MuseumObject
 import com.example.metamuse.data.mapper.toDomain
 import com.example.metamuse.data.network.MuseApiService
+import com.example.metamuse.domain.model.MuseumObject
 
 interface MetaMuseRepository {
     suspend fun loadInitialMuseumObjects(batchSize: Int): Pair<List<MuseumObject>, List<Int>>
