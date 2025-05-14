@@ -1,8 +1,8 @@
 package com.example.metamuse.di
 
-import com.example.metamuse.data.MetaMuseRepository
-import com.example.metamuse.data.NetworkMetaMuseRepository
+import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.data.network.MuseApiService
+import com.example.metamuse.data.repository.impl.MetaMuseRepositoryImpl
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -31,6 +31,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMetaMuseRepository(apiService: MuseApiService): MetaMuseRepository {
-        return NetworkMetaMuseRepository(apiService)
+        return MetaMuseRepositoryImpl(apiService)
     }
 }

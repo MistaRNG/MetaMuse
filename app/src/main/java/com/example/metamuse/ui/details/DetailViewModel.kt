@@ -3,7 +3,7 @@ package com.example.metamuse.ui.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.metamuse.data.MetaMuseRepository
+import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

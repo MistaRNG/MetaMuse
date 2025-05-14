@@ -1,7 +1,7 @@
 package com.example.metamuse
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.metamuse.data.MetaMuseRepository
+import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.data.model.MuseumObject
 import com.example.metamuse.ui.search.SearchViewModel
 import io.mockk.coEvery

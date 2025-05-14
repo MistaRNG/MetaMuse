@@ -1,22 +1,12 @@
-package com.example.metamuse.data
+package com.example.metamuse.data.repository.impl
 
 import com.example.metamuse.data.mapper.toDomain
 import com.example.metamuse.data.network.MuseApiService
+import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
+import javax.inject.Inject
 
-interface MetaMuseRepository {
-    suspend fun loadInitialMuseumObjects(batchSize: Int): Pair<List<MuseumObject>, List<Int>>
-    suspend fun loadNextMuseumObjects(
-        allIds: List<Int>,
-        offset: Int,
-        batchSize: Int
-    ): List<MuseumObject>
-
-    suspend fun searchMuseumObjects(query: String, limit: Int = 50): List<MuseumObject>
-    suspend fun getMuseumObject(id: Int): MuseumObject
-}
-
-internal class NetworkMetaMuseRepository(
+internal class MetaMuseRepositoryImpl @Inject constructor(
     private val museApiService: MuseApiService
 ) : MetaMuseRepository {
 
