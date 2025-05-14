@@ -1,8 +1,10 @@
 package com.example.metamuse
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.metamuse.data.repository.MetaMuseRepository
-import com.example.metamuse.data.model.MuseumObject
+import com.example.metamuse.domain.model.MuseumObject
+import com.example.metamuse.domain.usecase.GetInitialMuseumObjectsUseCase
+import com.example.metamuse.domain.usecase.LoadMoreMuseumObjectsUseCase
+import com.example.metamuse.domain.usecase.SearchMuseumObjectsUseCase
 import com.example.metamuse.ui.search.SearchViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -19,13 +21,18 @@ class SearchViewModelTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var repository: MetaMuseRepository
+    private lateinit var getInitialMuseumObjectsUseCase: GetInitialMuseumObjectsUseCase
+    private lateinit var loadMoreMuseumObjectsUseCase: LoadMoreMuseumObjectsUseCase
+    private lateinit var searchMuseumObjectsUseCase: SearchMuseumObjectsUseCase
     private lateinit var viewModel: SearchViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        repository = mockk()
+
+        getInitialMuseumObjectsUseCase = mockk()
+        loadMoreMuseumObjectsUseCase = mockk()
+        searchMuseumObjectsUseCase = mockk()
     }
 
     @After
@@ -38,42 +45,53 @@ class SearchViewModelTest {
         title: String = "DefaultTitle"
     ): MuseumObject {
         return MuseumObject(
-            objectID = id,
+            id = id,
             title = title,
-            artistDisplayBio = "Bio for $title",
-            artistDisplayName = "Artist $title",
+            artistBio = "Bio for $title",
+            artist = "Artist $title",
             dimensions = "Dimensions",
             medium = "Medium",
-            objectDate = "Date",
-            objectURL = "https://example.com",
-            primaryImage = "https://image.com/image.jpg"
+            date = "Date",
+            url = "https://example.com",
+            imageUrl = "https://image.com/image.jpg",
+            additionalImages = listOf("https://image.com/image.jpg")
         )
     }
 
     @Test
-    fun `onSearchQueryChange updates state with results`() = runTest {
+    fun onSearchQueryChange_validQuery_updatesStateWithResults() = runTest {
         val mockObject = createMockMuseumObject(1, "TestTitle")
-        coEvery { repository.searchMuseumObjectIDs("test") } returns listOf(1)
-        coEvery { repository.getMuseumObject(1) } returns mockObject
+        coEvery { searchMuseumObjectsUseCase("test") } returns listOf(mockObject)
+        coEvery { getInitialMuseumObjectsUseCase(any()) } returns Pair(emptyList(), emptyList())
 
-        viewModel = SearchViewModel(repository)
+        viewModel = SearchViewModel(
+            getInitialMuseumObjectsUseCase,
+            loadMoreMuseumObjectsUseCase,
+            searchMuseumObjectsUseCase
+        )
+
         testScheduler.advanceUntilIdle()
 
         viewModel.onSearchQueryChange("test")
         testScheduler.advanceUntilIdle()
 
-        assertEquals("test", viewModel.searchQuery)
-        assertEquals(1, viewModel.museUiState.size)
-        assertEquals("TestTitle", viewModel.museUiState.first().title)
+        assertEquals("test", viewModel.searchQuery.value)
+        assertEquals(1, viewModel.museUiState.value.size)
+        assertEquals("TestTitle", viewModel.museUiState.value.first().title)
     }
 
     @Test
-    fun `retryLastAction calls search again if in searchMode`() = runTest {
+    fun retryLastAction_inSearchMode_triggersSearchAgain() = runTest {
         val mockObject = createMockMuseumObject(2, "RetryTest")
-        coEvery { repository.searchMuseumObjectIDs("retry") } returns listOf(2)
-        coEvery { repository.getMuseumObject(2) } returns mockObject
+        coEvery { searchMuseumObjectsUseCase("retry") } returns listOf(mockObject)
+        coEvery { getInitialMuseumObjectsUseCase(any()) } returns Pair(emptyList(), emptyList())
 
-        viewModel = SearchViewModel(repository)
+        viewModel = SearchViewModel(
+            getInitialMuseumObjectsUseCase,
+            loadMoreMuseumObjectsUseCase,
+            searchMuseumObjectsUseCase
+        )
+
         testScheduler.advanceUntilIdle()
 
         viewModel.onSearchQueryChange("retry")
@@ -82,8 +100,39 @@ class SearchViewModelTest {
         viewModel.retryLastAction()
         testScheduler.advanceUntilIdle()
 
-        assertEquals("retry", viewModel.searchQuery)
-        assertEquals(1, viewModel.museUiState.size)
-        assertEquals("RetryTest", viewModel.museUiState.first().title)
+        assertEquals("retry", viewModel.searchQuery.value)
+        assertEquals(1, viewModel.museUiState.value.size)
+        assertEquals("RetryTest", viewModel.museUiState.value.first().title)
+    }
+
+    @Test
+    fun loadMoreMuseumObjects_whenScrolled_addsNewItems() = runTest {
+        val initialObjects = listOf(
+            createMockMuseumObject(1, "Obj 1"),
+            createMockMuseumObject(2, "Obj 2")
+        )
+        val nextObjects = listOf(
+            createMockMuseumObject(3, "Obj 3"),
+            createMockMuseumObject(4, "Obj 4")
+        )
+
+        coEvery { getInitialMuseumObjectsUseCase(any()) } returns Pair(initialObjects, listOf(1, 2, 3, 4))
+        coEvery { loadMoreMuseumObjectsUseCase(listOf(1, 2, 3, 4), 2, any()) } returns nextObjects
+        coEvery { searchMuseumObjectsUseCase(any()) } returns emptyList()
+
+        viewModel = SearchViewModel(
+            getInitialMuseumObjectsUseCase,
+            loadMoreMuseumObjectsUseCase,
+            searchMuseumObjectsUseCase
+        )
+
+        testScheduler.advanceUntilIdle()
+        viewModel.loadMoreMuseumObjects()
+        testScheduler.advanceUntilIdle()
+
+        val result = viewModel.museUiState.value
+        assertEquals(4, result.size)
+        assertEquals("Obj 1", result[0].title)
+        assertEquals("Obj 4", result[3].title)
     }
 }
