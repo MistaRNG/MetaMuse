@@ -13,6 +13,7 @@ interface MetaMuseRepository {
     ): List<MuseumObject>
 
     suspend fun searchMuseumObjects(query: String, limit: Int = 50): List<MuseumObject>
+    suspend fun getMuseumObject(id: Int): MuseumObject
 }
 
 internal class NetworkMetaMuseRepository(
@@ -47,5 +48,8 @@ internal class NetworkMetaMuseRepository(
                 null
             }
         }
+    }
+    override suspend fun getMuseumObject(id: Int): MuseumObject {
+        return museApiService.getMuseumObject(id).toDomain()
     }
 }

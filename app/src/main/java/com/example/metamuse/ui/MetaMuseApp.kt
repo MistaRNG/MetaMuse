@@ -9,10 +9,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.metamuse.ui.navigation.MetaMuseNavHost
 
 @Composable
-fun MetaMuseApp(navController: NavHostController = rememberNavController()) {
+fun MetaMuseApp(
+    navController: NavHostController = rememberNavController()) {
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
-            MetaMuseNavHost(navController = navController)
+            MetaMuseNavHost(
+                navController = navController
+            )
         }
 }

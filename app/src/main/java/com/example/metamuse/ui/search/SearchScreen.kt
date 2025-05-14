@@ -40,10 +40,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.metamuse.R
 import com.example.metamuse.domain.model.MuseumObject
 import com.example.metamuse.ui.common.ErrorScreen
-import com.example.metamuse.ui.details.DetailViewModel
 import com.example.metamuse.ui.navigation.NavigationDestination
 
 object SearchDestination : NavigationDestination {
@@ -53,8 +53,7 @@ object SearchDestination : NavigationDestination {
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel,
-    detailViewModel: DetailViewModel,
-    navigateToDetails: (id: Int) -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     val museumObjects by searchViewModel.museUiState.collectAsState()
@@ -122,8 +121,7 @@ fun SearchScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    detailViewModel.museumObject = obj
-                                    navigateToDetails(obj.id)
+                                    navController.navigate("details/${obj.id}")
                                 },
                             shape = RoundedCornerShape(16.dp),
                             tonalElevation = 2.dp,
