@@ -2,8 +2,10 @@ package com.example.metamuse.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
+import com.example.metamuse.domain.usecase.GetInitialMuseumObjectsUseCase
+import com.example.metamuse.domain.usecase.LoadMoreMuseumObjectsUseCase
+import com.example.metamuse.domain.usecase.SearchMuseumObjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val metaMuseRepository: MetaMuseRepository
+    private val getInitialMuseumObjectsUseCase: GetInitialMuseumObjectsUseCase,
+    private val loadMoreMuseumObjectsUseCase: LoadMoreMuseumObjectsUseCase,
+    private val searchMuseumObjectsUseCase: SearchMuseumObjectsUseCase,
 ) : ViewModel() {
 
     private val _museUiState = MutableStateFlow<List<MuseumObject>>(emptyList())
@@ -55,7 +59,7 @@ class SearchViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val (objects, ids) = metaMuseRepository.loadInitialMuseumObjects(batchSize = 20)
+                val (objects, ids) = getInitialMuseumObjectsUseCase(batchSize = 20)
                 allIDs = ids
                 allMuseumObjects = objects
                 loadedItemCount = objects.size
@@ -76,7 +80,7 @@ class SearchViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val newObjects = metaMuseRepository.loadNextMuseumObjects(allIDs, loadedItemCount, batchSize = 20)
+                val newObjects = loadMoreMuseumObjectsUseCase(allIDs, loadedItemCount, batchSize = 20)
                 if (tokenAtStart != currentJobToken) return@launch
                 loadedItemCount += newObjects.size
                 allMuseumObjects += newObjects
@@ -107,7 +111,7 @@ class SearchViewModel @Inject constructor(
         val tokenAtStart = currentJobToken
         viewModelScope.launch {
             try {
-                val searchObjects = metaMuseRepository.searchMuseumObjects(newQuery)
+                val searchObjects = searchMuseumObjectsUseCase(newQuery)
                 if (tokenAtStart == currentJobToken) {
                     _museUiState.value = searchObjects
                 }

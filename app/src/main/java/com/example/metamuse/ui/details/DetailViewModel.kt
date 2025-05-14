@@ -3,8 +3,8 @@ package com.example.metamuse.ui.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.domain.model.MuseumObject
+import com.example.metamuse.domain.usecase.GetMuseumObjectUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val repository: MetaMuseRepository,
+    private val getMuseumObjectUseCase: GetMuseumObjectUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -26,7 +26,7 @@ class DetailViewModel @Inject constructor(
         if (id != null) {
             viewModelScope.launch {
                 try {
-                    _museumObject.value = repository.getMuseumObject(id)
+                    _museumObject.value = getMuseumObjectUseCase(id)
                 } catch (e: Exception) {
                     _museumObject.value = null
                 }

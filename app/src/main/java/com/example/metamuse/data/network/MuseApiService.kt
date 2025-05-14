@@ -5,7 +5,6 @@ import com.example.metamuse.data.model.dto.MuseumObjectDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-
 interface MuseApiService {
 
     @GET("objects")
