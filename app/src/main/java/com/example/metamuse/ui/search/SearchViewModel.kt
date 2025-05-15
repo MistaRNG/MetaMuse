@@ -7,9 +7,12 @@ import com.example.metamuse.domain.usecase.GetInitialMuseumObjectsUseCase
 import com.example.metamuse.domain.usecase.LoadMoreMuseumObjectsUseCase
 import com.example.metamuse.domain.usecase.SearchMuseumObjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,6 +47,7 @@ class SearchViewModel @Inject constructor(
     private var currentJobToken = 0
 
     init {
+        observeSearchQuery()
         loadInitial()
     }
 
@@ -93,37 +97,37 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun onSearchQueryChange(newQuery: String) {
-        if (newQuery == _searchQuery.value && _museUiState.value.isNotEmpty()) return
-
-        _searchQuery.value = newQuery
-        currentJobToken++
-
-        if (newQuery.isBlank()) {
-            _searchMode.value = false
-            _museUiState.value = allMuseumObjects
-            return
-        }
-
-        _searchMode.value = true
-        _isLoading.value = true
-
-        val tokenAtStart = currentJobToken
+    @OptIn(FlowPreview::class)
+    private fun observeSearchQuery() {
         viewModelScope.launch {
-            try {
-                val searchObjects = searchMuseumObjectsUseCase(newQuery)
-                if (tokenAtStart == currentJobToken) {
-                    _museUiState.value = searchObjects
+            _searchQuery
+                .debounce(1000)
+                .distinctUntilChanged()
+                .collect { query ->
+                    if (query.isBlank()) {
+                        _searchMode.value = false
+                        _museUiState.value = allMuseumObjects
+                        return@collect
+                    }
+
+                    _searchMode.value = true
+                    _isLoading.value = true
+
+                    try {
+                        val results = searchMuseumObjectsUseCase(query)
+                        _museUiState.value = results
+                    } catch (e: Exception) {
+                        notifyNetworkError()
+                        _museUiState.value = emptyList()
+                    } finally {
+                        _isLoading.value = false
+                    }
                 }
-            } catch (e: Exception) {
-                if (tokenAtStart == currentJobToken) {
-                    _museUiState.value = emptyList()
-                    notifyNetworkError()
-                }
-            } finally {
-                if (tokenAtStart == currentJobToken) _isLoading.value = false
-            }
         }
+    }
+
+    fun onSearchQueryChange(newQuery: String) {
+        _searchQuery.value = newQuery
     }
 
     fun retryLastAction() {

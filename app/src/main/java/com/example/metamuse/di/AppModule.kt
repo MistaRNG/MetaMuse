@@ -1,7 +1,7 @@
 package com.example.metamuse.di
 
-import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.data.network.MuseApiService
+import com.example.metamuse.data.repository.MetaMuseRepository
 import com.example.metamuse.data.repository.impl.MetaMuseRepositoryImpl
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
