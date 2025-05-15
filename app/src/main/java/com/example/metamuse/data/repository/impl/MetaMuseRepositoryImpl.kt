@@ -39,6 +39,7 @@ internal class MetaMuseRepositoryImpl @Inject constructor(
             }
         }
     }
+
     override suspend fun getMuseumObject(id: Int): MuseumObject {
         return museApiService.getMuseumObject(id).toDomain()
     }
